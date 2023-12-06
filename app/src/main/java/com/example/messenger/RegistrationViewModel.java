@@ -3,9 +3,10 @@ package com.example.messenger;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -13,31 +14,43 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class RegistrationViewModel extends AndroidViewModel {
-
-    private MutableLiveData<Boolean> isCreated = new MutableLiveData<>();
-
+public class RegistrationViewModel extends ViewModel {
     private FirebaseAuth auth;
-    public RegistrationViewModel(@NonNull Application application) {
-        super(application);
-    }
-
-    public LiveData<Boolean> getIsCreated() {
-        return isCreated;
-    }
-
-    public void createUser(String email, String password) {
+    private final MutableLiveData<String> error = new MutableLiveData<>();
+    private final MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
+    public RegistrationViewModel() {
         auth = FirebaseAuth.getInstance();
-        //FirebaseUser user = auth.getCurrentUser();
-        auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+        auth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
-            public void onSuccess(AuthResult authResult) {
-                isCreated.setValue(true);
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser() != null) {
+                    user.setValue(firebaseAuth.getCurrentUser());
+                }
             }
-        }).addOnFailureListener(new OnFailureListener() {
+        });
+    }
+
+    public MutableLiveData<String> getError() {
+        return error;
+    }
+
+    public MutableLiveData<FirebaseUser> getUser() {
+        return user;
+    }
+
+    public void singUp(
+            String email,
+            String password,
+            String name,
+            String lastName,
+            int age
+    ) {
+        //FirebaseUser user = auth.getCurrentUser();
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                isCreated.setValue(false);
+                error.setValue(e.getMessage());
             }
         });
     }

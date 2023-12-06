@@ -1,6 +1,7 @@
 package com.example.messenger;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
@@ -23,34 +24,46 @@ public class ResetPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
         initViews();
+        viewModel = new ViewModelProvider(this).get(ResetPasswordViewModel.class);
+        observeViewModel();
         String email = getIntent().getStringExtra(EXTRA_EMAIL);
         editTextEmail.setText(email);
-
-        viewModel = new ViewModelProvider(this).get(ResetPasswordViewModel.class);
         buttonToResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String email = editTextEmail.getText().toString().trim();
-                if (email.isEmpty()) {
-                    Toast.makeText(
-                            ResetPasswordActivity.this,
-                            "Fill in your Email",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                } else {
-                    viewModel.sendPasswordResetEmail(email);
-                    Toast.makeText(
-                            ResetPasswordActivity.this,
-                            "A letter to change your password has been sent to your email address",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                    Intent intent = LoginActivity.newIntent(ResetPasswordActivity.this);
-                    startActivity(intent);
-                }
+                viewModel.resetPassword(email);
             }
         });
     }
 
+    private void observeViewModel() {
+        viewModel.getError().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String errorMessage) {
+                if(errorMessage != null) {
+                    Toast.makeText(
+                            ResetPasswordActivity.this,
+                            errorMessage,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
+
+        viewModel.getSuccess().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean success) {
+                if(success) {
+                    Toast.makeText(
+                            ResetPasswordActivity.this,
+                            R.string.reset_link_sent,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
+    }
     private void initViews() {
         editTextEmail = findViewById(R.id.editTextEmail);
         buttonToResetPassword = findViewById(R.id.buttonToResetPassword);

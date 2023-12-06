@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText editTextEmail;
@@ -29,21 +31,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initViews();
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
-        viewModel.getIsAuthorized().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isAuthorized) {
-                if (isAuthorized) {
-                    goToUsersActivity();
-                } else {
-                    Toast.makeText(
-                            LoginActivity.this,
-                            "Email or password was incorrect",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                }
-            }
-        });
+        observeViewModel();
+        setUpClickListeners();
+    }
 
+    private void setUpClickListeners() {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,9 +74,30 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void goToUsersActivity() {
-        Intent intent = UsersActivity.newIntent(LoginActivity.this);
-        startActivity(intent);
+    private void observeViewModel() {
+        viewModel.getError().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String errorMessage) {
+                if (errorMessage != null) {
+                    Toast.makeText(
+                            LoginActivity.this,
+                            errorMessage,
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+        });
+
+        viewModel.getUser().observe(this, new Observer<FirebaseUser>() {
+            @Override
+            public void onChanged(FirebaseUser firebaseUser) {
+                if (firebaseUser != null) {
+                    Intent intent = UsersActivity.newIntent(LoginActivity.this);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
     }
 
     private void initViews() {
