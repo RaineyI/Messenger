@@ -38,13 +38,15 @@ public class RegistrationActivity extends AppCompatActivity {
                 String password = getTrimmedValue(editTextPassword);
                 String name = getTrimmedValue(editTextName);
                 String lastName = getTrimmedValue(editTextLastName);
-                Integer age = Integer.parseInt(getTrimmedValue(editTextAge));
+                Integer age = null;
+                try {
+                    age = Integer.parseInt(getTrimmedValue(editTextAge));
+                } catch (NumberFormatException e) {}
 
-                if (email.isEmpty() || password.isEmpty() || name.isEmpty() || lastName.isEmpty()
-                        || age.toString().isEmpty()) {
+                if (email.isEmpty() || password.isEmpty() || name.isEmpty() || lastName.isEmpty() || age == null) {
                     Toast.makeText(
                             RegistrationActivity.this,
-                            "Fill in",
+                            "Fill in gaps",
                             Toast.LENGTH_SHORT
                     ).show();
                 } else {
@@ -75,6 +77,18 @@ public class RegistrationActivity extends AppCompatActivity {
                     Intent intent = UsersActivity.newIntent(RegistrationActivity.this);
                     startActivity(intent);
                     finish();
+                }
+            }
+        });
+
+        viewModel.wasSent().observe(RegistrationActivity.this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean sent) {
+                if(sent) {
+                    Toast.makeText(
+                            RegistrationActivity.this,
+                            "The verify link has been successfully sent",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
