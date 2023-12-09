@@ -76,7 +76,6 @@ public class RegistrationActivity extends AppCompatActivity {
                 if (firebaseUser != null) {
                     Intent intent = UsersActivity.newIntent(RegistrationActivity.this);
                     startActivity(intent);
-                    finish();
                 }
             }
         });
@@ -89,7 +88,9 @@ public class RegistrationActivity extends AppCompatActivity {
                             RegistrationActivity.this,
                             "The verify link has been successfully sent",
                             Toast.LENGTH_SHORT).show();
+                    finish();
                 }
+
             }
         });
     }
