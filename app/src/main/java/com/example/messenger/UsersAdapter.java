@@ -45,7 +45,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
         holder.textViewUserInfo.setText(userInfo);
 
         int bgResId;
-        if(user.isOnline()) {
+        if(user.getStatusOnline()) {
             bgResId = R.drawable.circle_green;
         } else {
             bgResId = R.drawable.circle_pink;
