@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp"
-    android:background="@color/bg_users"
+    android:background="@color/bg"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
     tools:context=".UsersActivity"
     tools:listitem="@layout/user_item" />
