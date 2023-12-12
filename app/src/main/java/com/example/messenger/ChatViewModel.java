@@ -27,7 +27,7 @@ public class ChatViewModel extends ViewModel {
     private MutableLiveData<String> error = new MutableLiveData<>();
 
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    DatabaseReference referenceUsers = firebaseDatabase.getReference("Users");
+    DatabaseReference usersReference = firebaseDatabase.getReference("Users");
     DatabaseReference referenceMessages = firebaseDatabase.getReference("Messages");
 
     private String currentUserId;
@@ -36,7 +36,7 @@ public class ChatViewModel extends ViewModel {
     public ChatViewModel(String currentUserId, String otherUserId) {
         this.currentUserId = currentUserId;
         this.otherUserId = otherUserId;
-        referenceUsers.child(otherUserId).addValueEventListener(new ValueEventListener() {
+        usersReference.child(otherUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
@@ -81,6 +81,10 @@ public class ChatViewModel extends ViewModel {
 
     public LiveData<String> getError() {
         return error;
+    }
+
+    public void setUserOnline(boolean isOnline) {
+        usersReference.child(currentUserId).child("statusOnline").setValue(isOnline);
     }
 
     public void sendMessage(Message message) {
